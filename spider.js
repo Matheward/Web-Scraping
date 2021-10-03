@@ -1,24 +1,32 @@
-var request = require('request')
-var cheerio = require('cheerio')
-var fs = require('fs');
+const express = require('express');
+const puppeteer = require('puppeteer');
 
-request('https://wallpaperhub.app/wallpapers', function(err, res, body){
-    if (err) console.log('Erro: ' + err)
-    
-    var $ = cheerio.load(body)
-    var i = 0;
-    $('.grid-container a').each(function(){
-        var title = $(this).find('.grid-container a').text().trim();
-        var rating = $(this).find('.grid-itemContent h3').text().trim();
-        var img = $(this).find('img').attr('src');
-       
-        fs.appendFile('imdb.txt', title + ' ' + rating + '\n', function (err) {
-            if (err) throw err;
-            console.log('Sucesso!'); 
+const server = express();
 
-        var file = fs.createWriteStream('img/' + i + '.jpg');
-        request(img).pipe(file);
-        i = i+1;
-          });
+server.get('/', async (request, response) => {
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+    await page.goto('link_da_pagina');
+    //await page.screenshot({ path: 'example.png' });
+    const spiderScraping = await page.evaluate(() => {
+        return {
+            title: document.querySelector('.class_desejada').innerHTML,
+            subtitle: document.querySelector('.class_desejada').innerHTML,
+            width: document.documentElement.clientWidth,
+            height: document.documentElement.clientHeight,
+            deviceScaleFactor: window.devicePixelRatio
+        }
+    });
+
+    await browser.close();
+    response.send({
+        title: spiderScraping.title,
+        subtitle: spiderScraping.subtitle,
+        width: spiderScraping.width,
+        height: spiderScraping.height,
+        deviceScaleFactor: spiderScraping.deviceScaleFactor,
     });
 });
+
+server.listen(3000, () => { console.log('Executando...') })
+
