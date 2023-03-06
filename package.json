@@ -19,7 +19,7 @@
   "homepage": "https://github.com/RichardMathews/Web-Scraping#readme",
   "dependencies": {
     "express": "^4.17.1",
-    "puppeteer": "^10.4.0"
+    "puppeteer": "^19.7.3"
   },
   "devDependencies": {
     "nodemon": "^2.0.13"
